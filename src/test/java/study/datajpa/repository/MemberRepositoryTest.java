@@ -12,6 +12,7 @@ import study.datajpa.entity.Team;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -134,5 +135,28 @@ class MemberRepositoryTest {
         for (Member member : result) {
             System.out.println("member = " + member);
         }
+    }
+
+    @Test
+    public void findListByUsername() {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        // List는 null이 존재하지않는다. 데이터가 없으면 empty 반환 (에러없음)
+        List<Member> result = memberRepository.findListByUsername("AAA");
+        System.out.println("result = " + result.size());
+
+        // 단건 조회는 데이터가 없으면 null을 반환 (원래는 에러가 터지는데 jpa가 trycatch로 잡아서 null로 반환한다.)
+        Member findMember = memberRepository.findMemberByUsername("sdsdfsdfsd");
+        System.out.println("findMember = " + findMember);
+
+        // 디비에 데이터가 있을수도 없을수도 하면 Optional 쓰는게 맞다. 왜냐하면 Optional은 empty를 반환하기 때문 (자바스크립트의 []반환과 같은가?)
+        // Optional<Member>는 1건 조회인데, 결과가 2개 이상이면? 예외가 터진다.
+        Optional<Member> optionalMember = memberRepository.findOptionalByUsername("zxczxczxczxc");
+        System.out.println("optionalMember = " + optionalMember);
+
     }
 }
