@@ -360,4 +360,48 @@ class MemberRepositoryTest {
             System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
         }
     }
+
+    // JPA Hint
+    @Test
+    public void queryHint_before() {
+        // given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush(); // 아직 영속성에 남아있다.
+        em.clear(); // 영속성을 날린다.
+
+        // when
+        // readOnly가 아니므로, 변경감지를 할 목적으로 복사를 한다. -> 메모리가 든다.
+        Member member = memberRepository.findById(member1.getId()).get();
+        member.setUsername("member2"); // update 쿼리가 날라간다.
+
+        em.flush();
+    }
+
+    // JPA Hint
+    @Test
+    public void queryHint_after() {
+        // given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush(); // 아직 영속성에 남아있다.
+        em.clear(); // 영속성을 날린다.
+
+        // when
+        // ReadOnly 로 가져온다.
+        Member member = memberRepository.findReadOnlyByUsername("member1");
+        // 디비상에 Update 쿼리가 날라가지않는다
+        member.setUsername("member2"); // update 쿼리가 날라간다.
+
+        em.flush();
+    }
+
+    @Test
+    public void lock() {
+        // given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush(); // 아직 영속성에 남아있다.
+        em.clear(); // 영속성을 날린다.
+
+        // when
+        List<Member> member11 = memberRepository.findLockByUsername("member1");
+    }
 }
