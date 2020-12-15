@@ -13,6 +13,8 @@ import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +31,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+    @Autowired
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -275,5 +279,29 @@ class MemberRepositoryTest {
 
         // when
         List<Member> page = memberRepository.findListByAge(age, pageRequest);
+    }
+
+    @Test
+    public void bulkUpdate() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        // when
+        // 벌크성 업데이트는 영속성을 무시하고 디비에 직접적으로 쿼리를 날리기때문에, 캐시가 무용지물
+        // 그러므로 벌크성 업데이트를 하고나면, 영속성을 초기화시켜줘야만한다.
+        int resultCount = memberRepository.bulkAgePlus(20);
+
+        em.flush(); // 디비에 영속성을 적용한다.
+        em.clear(); // 영속성을 초기화한다.
+
+        List<Member> result = memberRepository.findByUsername("member5");
+        Member member5 = result.get(0);
+        System.out.println("member5 = " + member5); // <-- 영속성이 초기화되고, 디비에서 새로 select해서 찾아오기때문에 프록시가 아니다.
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
     }
 }
