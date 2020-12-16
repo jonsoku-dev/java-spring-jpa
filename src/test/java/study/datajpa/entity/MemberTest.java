@@ -66,6 +66,23 @@ class MemberTest {
 
         // then
         System.out.println("findMember.getCreatedDate = " + findMember.getCreatedDate());
-        System.out.println("findMember.getUpdatedDate = " + findMember.getUpdatedDate());
+//        System.out.println("findMember.getUpdatedDate = " + findMember.getUpdatedDate());
+    }
+
+    @Test
+    public void SpringJpaEventBaseEntity() throws Exception {
+        // given
+        Member member1 = new Member("member1");
+        memberRepository.save(member1);
+
+        Thread.sleep(100);
+        member1.setUsername("member2");
+
+        // when
+        Member findMember = memberRepository.findById(member1.getId()).get();
+
+        // then
+        System.out.println("findMember.getCreatedDate = " + findMember.getCreatedDate());
+        System.out.println("findMember.getUpdatedDate = " + findMember.getLastModifiedDate());
     }
 }
