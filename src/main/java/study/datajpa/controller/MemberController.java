@@ -2,6 +2,7 @@ package study.datajpa.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,7 +62,14 @@ public class MemberController {
 //        Page<MemberDto> map = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
 //        return map;
 
-        // dto 에 멤버를 바로 넣어줄 수 있다.
+//        // paging 을 커스터마이징 하고 싶을 때
+//        PageRequest request = PageRequest.of(1, 2);
+//        Page<MemberDto> map = memberRepository.findAll(request)
+//                .map(MemberDto::new);
+//
+//        MyPage<MemberDto>...
+
+                // dto 에 멤버를 바로 넣어줄 수 있다.
         return memberRepository.findAll(pageable)
                 .map(member -> new MemberDto(member));
     }
